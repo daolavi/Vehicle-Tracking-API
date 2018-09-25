@@ -7,7 +7,7 @@ namespace VTA.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class AdminController : ControllerBase
     {
         private readonly IVehicleService vehicleService;
