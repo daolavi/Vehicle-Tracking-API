@@ -18,18 +18,26 @@ namespace VTA.Services.VehicleService
 
         public Result<bool> RecordLocation(Models.Request.LocationRecord locationRecord)
         {
-            if (!IsRegistered(locationRecord.VehicleId, locationRecord.DeviceId))
+            if (!IsPaired(locationRecord.VehicleId, locationRecord.DeviceId))
             {
                 return new Result<bool>(false, Message.VEHICLE_DEVICE_INVALID);
             }
 
-            var documentId = $"{locationRecord.VehicleId}_{locationRecord.Time.ToString()}";
-            vehicleBucket.GetBucket().Insert(locationRecord.VehicleId, new Buckets.Models.LocationRecord
+            var documentId = $"{locationRecord.VehicleId}_{locationRecord.Time.Ticks}";
+            vehicleBucket.GetBucket().Insert(documentId, new Buckets.Models.LocationRecord
             {
                 VehicleId = locationRecord.VehicleId,
                 Time = locationRecord.Time,
                 Longtitude = locationRecord.Longitude,
                 Latitude = locationRecord.Latitude,
+            });
+
+            vehicleBucket.GetBucket().Upsert(locationRecord.VehicleId, new Vehicle
+            {
+                VehicleId = locationRecord.VehicleId,
+                DeviceId = locationRecord.DeviceId,
+                LastLongtitude = locationRecord.Longitude,
+                LastLatitude = locationRecord.Latitude,
             });
 
             return new Result<bool>(true);
@@ -56,6 +64,17 @@ namespace VTA.Services.VehicleService
             var n1sql = $@"select v.*
                             from Vehicle v
                             where v.type = '{DocumentType.VEHICLE}' and (v.vehicleId = '{vehicleId}' or v.deviceId = '{deviceId}')";
+            var query = QueryRequest.Create(n1sql);
+            query.ScanConsistency(ScanConsistency.RequestPlus);
+            var result = vehicleBucket.GetBucket().Query<Vehicle>(query);
+            return result.Rows.Count > 0;
+        }
+
+        public bool IsPaired(string vehicleId, string deviceId)
+        {
+            var n1sql = $@"select v.*
+                            from Vehicle v
+                            where v.type = '{DocumentType.VEHICLE}' and v.vehicleId = '{vehicleId}' and v.deviceId = '{deviceId}'";
             var query = QueryRequest.Create(n1sql);
             query.ScanConsistency(ScanConsistency.RequestPlus);
             var result = vehicleBucket.GetBucket().Query<Vehicle>(query);

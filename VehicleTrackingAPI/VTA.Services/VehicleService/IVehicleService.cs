@@ -10,5 +10,7 @@ namespace VTA.Services.VehicleService
         Result<bool> RecordLocation(LocationRecord recordPosition);
 
         bool IsRegistered(string vehicleId, string deviceId);
+
+        bool IsPaired(string vehicleId, string deviceId);
     }
 }

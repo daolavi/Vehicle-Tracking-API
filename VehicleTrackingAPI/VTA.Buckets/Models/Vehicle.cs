@@ -12,6 +12,10 @@
 
         public string DeviceId { get; set; }
 
+        public decimal? LastLongtitude { get; set; }
+
+        public decimal? LastLatitude { get; set; }
+
         //public decimal Fuel { get; set; } 
 
         //public decimal Speed { get; set; }

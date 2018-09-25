@@ -6,11 +6,6 @@ namespace VTA.Buckets.Models
 {
     public class LocationRecord
     {
-        public LocationRecord()
-        {
-
-        }
-
         public string Type => typeof(LocationRecord).Name;
 
         public string VehicleId { get; set; }

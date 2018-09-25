@@ -22,5 +22,13 @@ namespace VTA.Api.Controllers
             var result = vehicleService.Register(vehicleRegister);
             return new JsonResult(result);
         }
+
+        [HttpPost]
+        [Route("record")]
+        public IActionResult Record([FromBody] LocationRecord locationRecord)
+        {
+            var result = vehicleService.RecordLocation(locationRecord);
+            return new JsonResult(result);
+        }
     }
 }
