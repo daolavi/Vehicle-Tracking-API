@@ -2,19 +2,20 @@
 using Couchbase.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.Swagger;
-using System;
-using System.Collections.Generic;
 using VTA.Api.Validation;
 using VTA.Buckets.Buckets.VehicleBucket;
+using VTA.Buckets.Models;
+using VTA.Services.AuthenticationService;
 using VTA.Services.VehicleService;
 
 namespace VTA.Api
 {
-    public class Startup
+    public partial class Startup
     {
         public Startup(IConfiguration configuration)
         {
@@ -54,7 +55,10 @@ namespace VTA.Api
                     .AddCouchbaseBucket<IVehicleBucketProvider>(Configuration["VehicleBucketName"], Configuration["VehicleBucketPassword"])
                     .AddDistributedCouchbaseCache(Configuration["LocationBucketName"], Configuration["LocationBucketPassword"], opt => { });
 
-            services.AddTransient<IVehicleService, VehicleService>();
+            services.AddScoped<IAuthenticationService, AuthenticationService>();
+            services.AddScoped<IVehicleService, VehicleService>();
+
+            services.AddTransient<IPasswordHasher<User>, PasswordHasher<User>>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -89,6 +93,9 @@ namespace VTA.Api
             {
                 app.ApplicationServices.GetRequiredService<ICouchbaseLifetimeService>().Close();
             });
+
+            // Create dummy data for Admin
+            InitializeDb(app, env);
         }
     }
 }
