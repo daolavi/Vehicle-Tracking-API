@@ -4,4 +4,10 @@
     <TargetFramework>netcoreapp2.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\VTA.Buckets\VTA.Buckets.csproj" />
+    <ProjectReference Include="..\VTA.Constants\VTA.Constants.csproj" />
+    <ProjectReference Include="..\VTA.Models\VTA.Models.csproj" />
+  </ItemGroup>
+
 </Project>

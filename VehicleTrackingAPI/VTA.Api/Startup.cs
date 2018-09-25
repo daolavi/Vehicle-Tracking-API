@@ -6,8 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.Swagger;
+using System;
+using System.Collections.Generic;
 using VTA.Api.Validation;
 using VTA.Buckets.Buckets.VehicleBucket;
+using VTA.Services.VehicleService;
 
 namespace VTA.Api
 {
@@ -47,10 +50,11 @@ namespace VTA.Api
                 .Build());
             });
 
-            // Add Buckets
             services.AddCouchbase(Configuration.GetSection("Couchbase"))
-                .AddCouchbaseBucket<IVehicleBucket>(Configuration["VehicleBucketName"], Configuration["VehicleBucketPassword"])
-                .AddDistributedCouchbaseCache(Configuration["LocationBucketName"], Configuration["LocationBucketPassword"], opt => { });
+                    .AddCouchbaseBucket<IVehicleBucketProvider>(Configuration["VehicleBucketName"], Configuration["VehicleBucketPassword"])
+                    .AddDistributedCouchbaseCache(Configuration["LocationBucketName"], Configuration["LocationBucketPassword"], opt => { });
+
+            services.AddTransient<IVehicleService, VehicleService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

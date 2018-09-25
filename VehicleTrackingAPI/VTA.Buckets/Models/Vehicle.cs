@@ -1,24 +1,19 @@
-﻿using Couchbase.Linq.Filters;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace VTA.Buckets.Models
+﻿namespace VTA.Buckets.Models
 {
-    [DocumentTypeFilter("Vehicle")]
     public class Vehicle
     {
         public Vehicle()
         {
-            Type = typeof(Vehicle).Name;
         }
 
-        public string Type { get; set; }
+        public string Type => typeof(Vehicle).Name;
+
+        public string VehicleId { get; set; }
 
         public string DeviceId { get; set; }
 
-        public decimal Long { get; set; }
+        //public decimal Fuel { get; set; } 
 
-        public decimal Lat { get; set; }
+        //public decimal Speed { get; set; }
     }
 }

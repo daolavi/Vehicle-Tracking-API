@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\VTA.Buckets\VTA.Buckets.csproj" />
+    <ProjectReference Include="..\VTA.Services\VTA.Services.csproj" />
   </ItemGroup>
 
 </Project>

@@ -2,7 +2,7 @@
 
 namespace VTA.Buckets.Buckets.VehicleBucket
 {
-    public interface IVehicleBucket : INamedBucketProvider
+    public interface IVehicleBucketProvider : INamedBucketProvider
     {
     }
 }
