@@ -1,4 +1,6 @@
-﻿using VTA.Models.Request;
+﻿using System;
+using System.Collections.Generic;
+using VTA.Models.Request;
 using VTA.Models.Response;
 
 namespace VTA.Services.VehicleService
@@ -12,5 +14,9 @@ namespace VTA.Services.VehicleService
         bool IsRegistered(string vehicleId, string deviceId);
 
         bool IsPaired(string vehicleId, string deviceId);
+
+        Result<Location> GetLatestLocation(string vehicleId);
+
+        Result<List<Location>> GetLocations(string vehicleId, DateTime from, DateTime to);
     }
 }

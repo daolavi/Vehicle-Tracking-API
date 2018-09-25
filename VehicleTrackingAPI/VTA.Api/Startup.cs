@@ -1,12 +1,15 @@
 ﻿using Couchbase.Extensions.Caching;
 using Couchbase.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Swagger;
+using System.Text;
 using VTA.Api.Validation;
 using VTA.Buckets.Buckets.VehicleBucket;
 using VTA.Buckets.Models;
@@ -28,6 +31,22 @@ namespace VTA.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+            // Add Jwt Authen
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = Configuration["Jwt:Issuer"],
+                        ValidAudience = Configuration["Jwt:Issuer"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
+                    };
+                });
 
             services.AddMvc(options =>
             {
@@ -74,7 +93,7 @@ namespace VTA.Api
             }
 
             app.UseHttpsRedirection();
-            app.UseMvc();
+
 
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();
@@ -86,6 +105,8 @@ namespace VTA.Api
                 c.RoutePrefix = string.Empty;
             });
 
+            app.UseAuthentication();
+
             app.UseCors("CorsPolicy");
 
             // Release CouchbaseService once application stopped
@@ -93,6 +114,8 @@ namespace VTA.Api
             {
                 app.ApplicationServices.GetRequiredService<ICouchbaseLifetimeService>().Close();
             });
+
+            app.UseMvc();
 
             // Create dummy data for Admin
             InitializeDb(app, env);

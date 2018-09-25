@@ -51,7 +51,7 @@ namespace VTA.Services.AuthenticationService
         {
             var claims = new[]
             {
-                new Claim(ClaimNames.Username,user.Username),
+                new Claim(ClaimNames.Username, user.Username),
             };
 
             var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(config["Jwt:Key"]));

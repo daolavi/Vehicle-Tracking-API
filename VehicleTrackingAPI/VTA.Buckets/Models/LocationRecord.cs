@@ -10,7 +10,7 @@ namespace VTA.Buckets.Models
 
         public string VehicleId { get; set; }
 
-        public DateTime Time { get; set; }
+        public long Time { get; set; }
 
         public decimal Longtitude { get; set; }
 
