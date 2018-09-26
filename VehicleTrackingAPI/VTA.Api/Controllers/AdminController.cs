@@ -28,7 +28,7 @@ namespace VTA.Api.Controllers
 
         [HttpGet]
         [Route("getlocations")]
-        public IActionResult GetLocations(string vehicleId, DateTime from, DateTime to)
+        public async Task<IActionResult> GetLocations(string vehicleId, DateTime from, DateTime to)
         {
             var result = vehicleService.GetLocations(vehicleId, from, to);
             return new JsonResult(result);

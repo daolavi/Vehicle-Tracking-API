@@ -74,14 +74,25 @@ namespace VTA.Api
             });
 
             services.AddCouchbase(Configuration.GetSection("Couchbase"))
+                    // Vehicle bucket for persist data including : register vehicle, record postion
                     .AddCouchbaseBucket<IVehicleBucketProvider>(Configuration["VehicleBucketName"], Configuration["VehicleBucketPassword"])
+                    // Location bucket is an ephemeral bucket for caching address in-memory. 
+                    // When converting from latitude, longtitude to address, the service will lookup cache first, if not existed, it will call to Google Map Api
                     .AddDistributedCouchbaseCache(Configuration["LocationBucketName"], Configuration["LocationBucketPassword"], opt => { });
 
+            // AuthenticationService is used for authenticate admin account and issuing token
             services.AddScoped<IAuthenticationService, AuthenticationService>();
+
+            // VehicleService is used for register vehicle, record position, get current postion and get positions during certain time
             services.AddScoped<IVehicleService, VehicleService>();
 
+            // PasswordHasher is used for hasing password
             services.AddTransient<IPasswordHasher<User>, PasswordHasher<User>>();
+
+            // LocationNameService is used for converting latitude, longtitude to address
             services.AddTransient<ILocationNameService, LocationNameService>();
+
+            // GoogleGeocoder is used for making request to Google Map Api
             services.AddTransient<IGeocoder, GoogleGeocoder>(geoCoder => new GoogleGeocoder(Configuration["APIKey"]));
         }
 

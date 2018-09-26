@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 using VTA.Models.Request;
 using VTA.Services.AuthenticationService;
 
@@ -18,7 +19,7 @@ namespace VTA.Api.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        public IActionResult CreateToken([FromBody]LoginRequest loginRequest)
+        public async Task<IActionResult> CreateToken([FromBody]LoginRequest loginRequest)
         {
             IActionResult response = Unauthorized();
             var user = authenticationService.Authenticate(loginRequest);
