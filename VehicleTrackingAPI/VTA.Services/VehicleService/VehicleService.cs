@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Couchbase.N1QL;
-using VTA.Buckets.Models;
 using VTA.Buckets.Repositories;
 using VTA.Constants;
 using VTA.Models.Request;
@@ -24,7 +22,7 @@ namespace VTA.Services.VehicleService
             this.locationNameService = locationNameService;
         }
 
-        public Result<bool> RecordLocation(Models.Request.LocationRecord locationRecord)
+        public Result<bool> RecordLocation(LocationRecord locationRecord)
         {
             if (!vehicleRepository.IsPaired(locationRecord.VehicleId, locationRecord.DeviceId))
             {

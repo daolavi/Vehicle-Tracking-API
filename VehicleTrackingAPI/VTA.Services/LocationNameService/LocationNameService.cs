@@ -24,7 +24,7 @@ namespace VTA.Services.LocationNameService
         {
             var latlng = $"{latitude},{longtitude}";
             var address = cache.GetString(latlng);
-            if (address == null)
+            if (string.IsNullOrEmpty(address))
             {
                 IEnumerable<Address> addresses = await geoCoder.ReverseGeocodeAsync(latitude, longtitude);
                 var formattedAddress = addresses.Count() == 0 ? Message.ADDRESS_NOT_FOUND : addresses.FirstOrDefault().FormattedAddress;
