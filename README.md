@@ -6,26 +6,26 @@ Vehicle Tracking API
 2. Make sure the configuration for Couchbase Server matched with section "Couchbase" from appsetting.json in the solution. You can leave it as the default value for server URL : http://localhost:8091
 3. Set password for Administrator : VehicleTrackingAPI or if you use other password, make sure you update the value for "VehicleBucketPassword" and "LocationBucketPassword" from appsetting.json in the solution.
 4. Setup 2 buckets 
-	4.1 Bucket Location
-	- Go to http://127.0.0.1:8091/ui/index.html#!/buckets
-	- Click 'ADD BUCKET' 
-	  Bucket name : Location
-	  Bucket type : ephemeral
-	- Go to http://127.0.0.1:8091/ui/index.html#!/security/userRoles?pageSize=10
-	- Click 'ADD USER'
-	  Username : Location
-	  Password : VehicleTrackingAPI
-	  Role     : Admin
-	4.2 Bucket Vehicle
-	- Go to http://127.0.0.1:8091/ui/index.html#!/buckets
-	- Click 'ADD BUCKET' 
-	  Bucket name : Vehicle
-	  Bucket type : Couchbase
-	- Go to http://127.0.0.1:8091/ui/index.html#!/security/userRoles?pageSize=10
-	- Click 'ADD USER'
-	  Username : Vehicle
-	  Password : VehicleTrackingAPI
-	  Role     : Admin
+	- Bucket Location
+		+ Go to http://127.0.0.1:8091/ui/index.html#!/buckets
+		+ Click 'ADD BUCKET' 
+			. Bucket name : Location
+			. Bucket type : ephemeral
+		+ Go to http://127.0.0.1:8091/ui/index.html#!/security/userRoles?pageSize=10
+		+ Click 'ADD USER'
+			. Username : Location
+			. Password : VehicleTrackingAPI
+			. Role     : Admin
+	- Bucket Vehicle
+		+ Go to http://127.0.0.1:8091/ui/index.html#!/buckets
+		+ Click 'ADD BUCKET' 
+			. Bucket name : Vehicle
+			. Bucket type : Couchbase
+		+ Go to http://127.0.0.1:8091/ui/index.html#!/security/userRoles?pageSize=10
+		+ Click 'ADD USER'
+			. Username : Vehicle
+			. Password : VehicleTrackingAPI
+			. Role     : Admin
 5. Create indexes             
 - Go to http://127.0.0.1:8091/ui/index.html#!/query/workbench
 - Execute the query one by one 
