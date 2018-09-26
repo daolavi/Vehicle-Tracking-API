@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 using Couchbase.N1QL;
+using Microsoft.Extensions.Caching.Distributed;
 using VTA.Buckets.Buckets.VehicleBucket;
 using VTA.Buckets.Models;
 using VTA.Constants;
 using VTA.Models.Request;
 using VTA.Models.Response;
+using VTA.Services.LocationNameService;
 
 namespace VTA.Services.VehicleService
 {
@@ -14,9 +18,12 @@ namespace VTA.Services.VehicleService
     {
         private readonly IVehicleBucketProvider vehicleBucket;
 
-        public VehicleService(IVehicleBucketProvider vehicleBucket)
+        private readonly ILocationNameService locationNameService;
+
+        public VehicleService(IVehicleBucketProvider vehicleBucket, ILocationNameService locationNameService)
         {
             this.vehicleBucket = vehicleBucket;
+            this.locationNameService = locationNameService;
         }
 
         public Result<bool> RecordLocation(Models.Request.LocationRecord locationRecord)
@@ -27,7 +34,7 @@ namespace VTA.Services.VehicleService
             }
 
             var documentId = $"{locationRecord.VehicleId}_{locationRecord.Time.Ticks}";
-            vehicleBucket.GetBucket().Insert(documentId, new Buckets.Models.LocationRecord
+            vehicleBucket.GetBucket().InsertAsync(documentId, new Buckets.Models.LocationRecord
             {
                 VehicleId = locationRecord.VehicleId,
                 Time = locationRecord.Time.Ticks,
@@ -35,7 +42,7 @@ namespace VTA.Services.VehicleService
                 Latitude = locationRecord.Latitude,
             });
 
-            vehicleBucket.GetBucket().Upsert(locationRecord.VehicleId, new Vehicle
+            vehicleBucket.GetBucket().UpsertAsync(locationRecord.VehicleId, new Vehicle
             {
                 VehicleId = locationRecord.VehicleId,
                 DeviceId = locationRecord.DeviceId,
@@ -53,7 +60,7 @@ namespace VTA.Services.VehicleService
                 return new Result<bool>(false, Message.VEHICLE_DEVICE_REGISTER_ALREADY);
             }
 
-            vehicleBucket.GetBucket().Insert(registerVehicle.VehicleId, new Vehicle
+            vehicleBucket.GetBucket().InsertAsync(registerVehicle.VehicleId, new Vehicle
             {
                 VehicleId = registerVehicle.VehicleId,
                 DeviceId = registerVehicle.DeviceId,
@@ -84,7 +91,7 @@ namespace VTA.Services.VehicleService
             return result.Rows.Count > 0;
         }
 
-        public Result<Location> GetLatestLocation(string vehicleId)
+        public async Task<Result<LocationName>> GetLatestLocationAsync(string vehicleId)
         {
             var n1sql = $@"select v.*
                             from Vehicle v
@@ -94,22 +101,20 @@ namespace VTA.Services.VehicleService
             var result = vehicleBucket.GetBucket().Query<Vehicle>(query);
             if (result.Rows.Count == 0)
             {
-                return new Result<Location>(null, Message.VEHICLE_NOT_EXISTED);
+                return new Result<LocationName>(null, Message.VEHICLE_NOT_EXISTED);
             }
             else
             {
                 var vehicle = result.Rows[0];
                 if (!vehicle.LastLongtitude.HasValue)
                 {
-                    return new Result<Location>(null, Message.VEHICLE_LOCATION_NOT_RECORDED);
+                    return new Result<LocationName>(null, Message.VEHICLE_LOCATION_NOT_RECORDED);
                 }
                 else
                 {
-                    return new Result<Location>(new Location
-                    {
-                        Longtitude = vehicle.LastLongtitude.Value,
-                        Latitude = vehicle.LastLatitude.Value
-                    });
+                    var locationName = await locationNameService.GetLocationNameAsync(vehicle.LastLatitude.Value,vehicle.LastLongtitude.Value);
+
+                    return locationName;
                 }
             }
         }

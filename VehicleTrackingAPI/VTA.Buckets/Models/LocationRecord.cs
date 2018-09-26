@@ -12,8 +12,8 @@ namespace VTA.Buckets.Models
 
         public long Time { get; set; }
 
-        public decimal Longtitude { get; set; }
+        public double Longtitude { get; set; }
 
-        public decimal Latitude { get; set; }
+        public double Latitude { get; set; }
     }
 }

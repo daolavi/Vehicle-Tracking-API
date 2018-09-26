@@ -11,5 +11,7 @@
         public const string VEHICLE_LOCATION_NOT_RECORDED = "The Vehicle Location is not recorded.";
 
         public const string NO_LOCATION_RECORDED = "No location recorded.";
+
+        public const string ADDRESS_NOT_FOUND = "Can not found the address.";
     }
 }

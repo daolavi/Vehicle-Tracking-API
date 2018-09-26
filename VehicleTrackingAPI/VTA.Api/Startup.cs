@@ -1,5 +1,7 @@
 ﻿using Couchbase.Extensions.Caching;
 using Couchbase.Extensions.DependencyInjection;
+using Geocoding;
+using Geocoding.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -14,6 +16,7 @@ using VTA.Api.Validation;
 using VTA.Buckets.Buckets.VehicleBucket;
 using VTA.Buckets.Models;
 using VTA.Services.AuthenticationService;
+using VTA.Services.LocationNameService;
 using VTA.Services.VehicleService;
 
 namespace VTA.Api
@@ -78,6 +81,8 @@ namespace VTA.Api
             services.AddScoped<IVehicleService, VehicleService>();
 
             services.AddTransient<IPasswordHasher<User>, PasswordHasher<User>>();
+            services.AddTransient<ILocationNameService, LocationNameService>();
+            services.AddTransient<IGeocoder, GoogleGeocoder>(geoCoder => new GoogleGeocoder(Configuration["APIKey"]));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

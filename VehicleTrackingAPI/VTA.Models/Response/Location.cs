@@ -6,8 +6,8 @@ namespace VTA.Models.Response
 {
     public class Location
     {
-        public decimal Longtitude { get; set; }
+        public double Longtitude { get; set; }
 
-        public decimal Latitude { get; set; }
+        public double Latitude { get; set; }
     }
 }

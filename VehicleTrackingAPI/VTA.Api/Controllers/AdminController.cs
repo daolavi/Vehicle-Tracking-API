@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Threading.Tasks;
 using VTA.Services.VehicleService;
 
 namespace VTA.Api.Controllers
@@ -19,9 +20,9 @@ namespace VTA.Api.Controllers
 
         [HttpGet]
         [Route("latestlocation")]
-        public IActionResult GetLatestLocation(string vehicleId)
+        public async Task<IActionResult> GetLatestLocationAsync(string vehicleId)
         {
-            var result = vehicleService.GetLatestLocation(vehicleId);
+            var result = await vehicleService.GetLatestLocationAsync(vehicleId);
             return new JsonResult(result);
         }
 
