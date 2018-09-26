@@ -13,8 +13,9 @@ using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Swagger;
 using System.Text;
 using VTA.Api.Validation;
-using VTA.Buckets.Buckets.VehicleBucket;
 using VTA.Buckets.Models;
+using VTA.Buckets.Providers;
+using VTA.Buckets.Repositories;
 using VTA.Services.AuthenticationService;
 using VTA.Services.LocationNameService;
 using VTA.Services.VehicleService;
@@ -91,6 +92,9 @@ namespace VTA.Api
 
             // LocationNameService is used for converting latitude, longtitude to address
             services.AddTransient<ILocationNameService, LocationNameService>();
+
+            // VehicleRepository is used for CRUD operations
+            services.AddTransient<IVehicleRepository, VehicleRepository>();
 
             // GoogleGeocoder is used for making request to Google Map Api
             services.AddTransient<IGeocoder, GoogleGeocoder>(geoCoder => new GoogleGeocoder(Configuration["APIKey"]));

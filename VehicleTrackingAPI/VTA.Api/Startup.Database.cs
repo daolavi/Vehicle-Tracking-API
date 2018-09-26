@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
-using VTA.Buckets.Buckets.VehicleBucket;
 using VTA.Buckets.Models;
+using VTA.Buckets.Providers;
 using VTA.Constants;
 
 namespace VTA.Api

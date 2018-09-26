@@ -1,6 +1,6 @@
 ﻿using Couchbase.Extensions.DependencyInjection;
 
-namespace VTA.Buckets.Buckets.VehicleBucket
+namespace VTA.Buckets.Providers
 {
     public interface IVehicleBucketProvider : INamedBucketProvider
     {

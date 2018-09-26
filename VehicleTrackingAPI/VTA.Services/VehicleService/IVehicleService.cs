@@ -12,11 +12,6 @@ namespace VTA.Services.VehicleService
 
         Result<bool> RecordLocation(LocationRecord recordPosition);
 
-        bool IsRegistered(string vehicleId, string deviceId);
-
-        // This method is a checkpoint to make sure VehicleId and DeviceId are registered, prevent a device updates location for other vehicles.
-        bool IsPaired(string vehicleId, string deviceId);
-
         Task<Result<LocationName>> GetLatestLocationAsync(string vehicleId);
 
         Result<List<Location>> GetLocations(string vehicleId, DateTime from, DateTime to);

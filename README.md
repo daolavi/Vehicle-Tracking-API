@@ -10,7 +10,7 @@ Vehicle Tracking API
 		+ Go to http://127.0.0.1:8091/ui/index.html#!/buckets
 		+ Click 'ADD BUCKET' 
 			. Bucket name : Location
-			. Bucket type : ephemeral
+			. Bucket type : Ephemeral
 		+ Go to http://127.0.0.1:8091/ui/index.html#!/security/userRoles?pageSize=10
 		+ Click 'ADD USER'
 			. Username : Location

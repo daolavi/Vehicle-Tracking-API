@@ -9,4 +9,9 @@
     <PackageReference Include="Couchbase.Extensions.DependencyInjection" Version="2.0.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\VTA.Constants\VTA.Constants.csproj" />
+    <ProjectReference Include="..\VTA.Models\VTA.Models.csproj" />
+  </ItemGroup>
+
 </Project>

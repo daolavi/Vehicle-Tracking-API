@@ -1,12 +1,11 @@
-﻿using Couchbase.N1QL;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using VTA.Buckets.Buckets.VehicleBucket;
 using VTA.Buckets.Models;
+using VTA.Buckets.Repositories;
 using VTA.Constants;
 using VTA.Models.Request;
 
@@ -18,26 +17,20 @@ namespace VTA.Services.AuthenticationService
 
         private readonly IPasswordHasher<User> passwordHasher;
 
-        private readonly IVehicleBucketProvider vehicleBucket;
+        private readonly IVehicleRepository vehicleRepository;
 
-        public AuthenticationService(IVehicleBucketProvider vehicleBucket, IConfiguration config, IPasswordHasher<User> passwordHasher)
+        public AuthenticationService(IVehicleRepository vehicleRepository, IConfiguration config, IPasswordHasher<User> passwordHasher)
         {
-            this.vehicleBucket = vehicleBucket;
+            this.vehicleRepository = vehicleRepository;
             this.config = config;
             this.passwordHasher = passwordHasher;
         }
 
         public User Authenticate(LoginRequest loginRequest)
         {
-            var n1sql = $@"select v.*
-                            from Vehicle v
-                            where v.type = '{DocumentType.USER}' and v.username = '{loginRequest.Username}'";
-            var query = QueryRequest.Create(n1sql);
-            query.ScanConsistency(ScanConsistency.RequestPlus);
-            var result = vehicleBucket.GetBucket().Query<User>(query);
-            if (result.Rows.Count > 0)
+            var user = vehicleRepository.GetUser(loginRequest.Username);
+            if (user != null)
             {
-                var user = result.Rows[0];
                 var verifyResult = passwordHasher.VerifyHashedPassword(user, user.Password, loginRequest.Password);
                 if (verifyResult == PasswordVerificationResult.Success)
                 {

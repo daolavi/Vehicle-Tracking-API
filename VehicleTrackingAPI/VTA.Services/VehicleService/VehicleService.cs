@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Couchbase.N1QL;
-using Microsoft.Extensions.Caching.Distributed;
-using VTA.Buckets.Buckets.VehicleBucket;
 using VTA.Buckets.Models;
+using VTA.Buckets.Repositories;
 using VTA.Constants;
 using VTA.Models.Request;
 using VTA.Models.Response;
@@ -16,96 +14,51 @@ namespace VTA.Services.VehicleService
 {
     public class VehicleService : IVehicleService
     {
-        private readonly IVehicleBucketProvider vehicleBucket;
+        private readonly IVehicleRepository vehicleRepository;
 
         private readonly ILocationNameService locationNameService;
 
-        public VehicleService(IVehicleBucketProvider vehicleBucket, ILocationNameService locationNameService)
+        public VehicleService(IVehicleRepository vehicleRepository, ILocationNameService locationNameService)
         {
-            this.vehicleBucket = vehicleBucket;
+            this.vehicleRepository = vehicleRepository;
             this.locationNameService = locationNameService;
         }
 
         public Result<bool> RecordLocation(Models.Request.LocationRecord locationRecord)
         {
-            if (!IsPaired(locationRecord.VehicleId, locationRecord.DeviceId))
+            if (!vehicleRepository.IsPaired(locationRecord.VehicleId, locationRecord.DeviceId))
             {
                 return new Result<bool>(false, Message.VEHICLE_DEVICE_INVALID);
             }
 
-            var documentId = $"{locationRecord.VehicleId}_{locationRecord.Time.Ticks}";
-            vehicleBucket.GetBucket().InsertAsync(documentId, new Buckets.Models.LocationRecord
-            {
-                VehicleId = locationRecord.VehicleId,
-                Time = locationRecord.Time.Ticks,
-                Longtitude = locationRecord.Longitude,
-                Latitude = locationRecord.Latitude,
-            });
+            vehicleRepository.InsertLocationRecordAsync(locationRecord);
 
-            vehicleBucket.GetBucket().UpsertAsync(locationRecord.VehicleId, new Vehicle
-            {
-                VehicleId = locationRecord.VehicleId,
-                DeviceId = locationRecord.DeviceId,
-                LastLongtitude = locationRecord.Longitude,
-                LastLatitude = locationRecord.Latitude,
-            });
+            vehicleRepository.UpsertVehicleAsync(locationRecord);
 
             return new Result<bool>(true);
         }
 
-        public Result<bool> Register(VehicleRegister registerVehicle)
+        public Result<bool> Register(VehicleRegister vehicleRegister)
         {
-            if (IsRegistered(registerVehicle.VehicleId, registerVehicle.DeviceId))
+            if (vehicleRepository.IsRegistered(vehicleRegister.VehicleId, vehicleRegister.DeviceId))
             {
                 return new Result<bool>(false, Message.VEHICLE_DEVICE_REGISTER_ALREADY);
             }
 
-            vehicleBucket.GetBucket().InsertAsync(registerVehicle.VehicleId, new Vehicle
-            {
-                VehicleId = registerVehicle.VehicleId,
-                DeviceId = registerVehicle.DeviceId,
-            });
+            vehicleRepository.InsertVehicleAsync(vehicleRegister);
             
             return new Result<bool>(true);
         }
 
-        public bool IsRegistered(string vehicleId, string deviceId)
-        {
-            var n1sql = $@"select v.*
-                            from Vehicle v
-                            where v.type = '{DocumentType.VEHICLE}' and (v.vehicleId = '{vehicleId}' or v.deviceId = '{deviceId}')";
-            var query = QueryRequest.Create(n1sql);
-            query.ScanConsistency(ScanConsistency.RequestPlus);
-            var result = vehicleBucket.GetBucket().Query<Vehicle>(query);
-            return result.Rows.Count > 0;
-        }
-
-        public bool IsPaired(string vehicleId, string deviceId)
-        {
-            var n1sql = $@"select v.*
-                            from Vehicle v
-                            where v.type = '{DocumentType.VEHICLE}' and v.vehicleId = '{vehicleId}' and v.deviceId = '{deviceId}'";
-            var query = QueryRequest.Create(n1sql);
-            query.ScanConsistency(ScanConsistency.RequestPlus);
-            var result = vehicleBucket.GetBucket().Query<Vehicle>(query);
-            return result.Rows.Count > 0;
-        }
-
         public async Task<Result<LocationName>> GetLatestLocationAsync(string vehicleId)
         {
-            var n1sql = $@"select v.*
-                            from Vehicle v
-                            where v.type = '{DocumentType.VEHICLE}' and v.vehicleId = '{vehicleId}'";
-            var query = QueryRequest.Create(n1sql);
-            query.ScanConsistency(ScanConsistency.RequestPlus);
-            var result = vehicleBucket.GetBucket().Query<Vehicle>(query);
-            if (result.Rows.Count == 0)
+            var vehicle = vehicleRepository.GetVehicleById(vehicleId);
+            if (vehicle == null)
             {
                 return new Result<LocationName>(null, Message.VEHICLE_NOT_EXISTED);
             }
             else
             {
-                var vehicle = result.Rows[0];
                 if (!vehicle.LastLongtitude.HasValue)
                 {
                     return new Result<LocationName>(null, Message.VEHICLE_LOCATION_NOT_RECORDED);
@@ -121,19 +74,13 @@ namespace VTA.Services.VehicleService
 
         public Result<List<Location>> GetLocations(string vehicleId, DateTime from, DateTime to)
         {
-            var n1sql = $@"select v.*
-                            from Vehicle v
-                            where v.type = '{DocumentType.LOCATION_RECORD}' and v.vehicleId = '{vehicleId}' and v.time >= {from.Ticks} and v.time <= {to.Ticks} ";
-            var query = QueryRequest.Create(n1sql);
-            query.ScanConsistency(ScanConsistency.RequestPlus);
-            var result = vehicleBucket.GetBucket().Query<Buckets.Models.LocationRecord>(query);
-            if (result.Rows.Count == 0)
+            var locationRecords = vehicleRepository.GetLocations(vehicleId, from, to);
+            if (locationRecords.Count() == 0)
             {
                 return new Result<List<Location>>(null, Message.NO_LOCATION_RECORDED);
             }
             else
             {
-                var locationRecords = result.Rows;
                 var data = locationRecords.Select(x => new Location { Longtitude = x.Longtitude, Latitude = x.Latitude}).ToList();
                 return new Result<List<Location>>(data);
             }
