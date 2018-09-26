@@ -23,7 +23,8 @@ namespace VTA.Buckets.Repositories
         {
             var n1sql = $@"select v.*
                             from Vehicle v
-                            where v.type = '{DocumentType.LOCATION_RECORD}' and v.vehicleId = '{vehicleId}' and v.time >= {from.Ticks} and v.time <= {to.Ticks} ";
+                            where v.type = '{DocumentType.LOCATION_RECORD}' and v.vehicleId = '{vehicleId}' and v.time >= {from.Ticks} and v.time <= {to.Ticks} 
+                            order by v.time asc";
             var query = QueryRequest.Create(n1sql);
             query.ScanConsistency(ScanConsistency.RequestPlus);
             var result = vehicleBucket.Query<LocationRecord>(query);
