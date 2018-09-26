@@ -34,6 +34,6 @@ Vehicle Tracking API
 	+ create index ix_vehicleId on Vehicle(vehicleId)
 	+ create index ix_deviceId on Vehicle(deviceId)
 	
-#How to consume api in AdminController
+#How to consume api in AdminController:
 - All requests go to AdminController need to be authenticated. In this case, you need to get token first by calling '/api/Token', then use bearer token for '/api/Admin/latestlocation' and '/api/Admin/getlocations'.
 - The dummy data for Admin account will be automatically created when application starts. You can use username/password: admin/admin to get token.
