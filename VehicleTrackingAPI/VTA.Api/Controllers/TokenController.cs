@@ -19,7 +19,7 @@ namespace VTA.Api.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> CreateToken([FromBody]LoginRequest loginRequest)
+        public IActionResult CreateToken([FromBody]LoginRequest loginRequest)
         {
             IActionResult response = Unauthorized();
             var user = authenticationService.Authenticate(loginRequest);

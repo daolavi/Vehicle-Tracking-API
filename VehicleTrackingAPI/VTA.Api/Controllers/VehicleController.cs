@@ -20,7 +20,7 @@ namespace VTA.Api.Controllers
 
         [HttpPost]
         [Route("register")]
-        public async Task<IActionResult> Register([FromBody] VehicleRegister vehicleRegister)
+        public IActionResult Register([FromBody] VehicleRegister vehicleRegister)
         {
             var result = vehicleService.Register(vehicleRegister);
             return new JsonResult(result);
@@ -28,7 +28,7 @@ namespace VTA.Api.Controllers
 
         [HttpPost]
         [Route("record")]
-        public async Task<IActionResult> Record([FromBody] LocationRecord locationRecord)
+        public IActionResult Record([FromBody] LocationRecord locationRecord)
         {
             var result = vehicleService.RecordLocation(locationRecord);
             return new JsonResult(result);
